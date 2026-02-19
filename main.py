@@ -16,7 +16,9 @@ def get_transcript(video_id: str):
         ydl_opts = {
             "quiet": True,
             "skip_download": True,
+            "format": "none",  # IMPORTANT: disables video format resolution
             "cookiefile": "cookies.txt",
+            "nocheckcertificate": True,
         }
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -27,11 +29,8 @@ def get_transcript(video_id: str):
         if not subtitles:
             return {"error": "No subtitles available"}
 
-        # Prefer English if available
-        if "en" in subtitles:
-            lang = "en"
-        else:
-            lang = list(subtitles.keys())[0]
+        # Prefer English
+        lang = "en" if "en" in subtitles else list(subtitles.keys())[0]
 
         subtitle_url = subtitles[lang][0]["url"]
 
