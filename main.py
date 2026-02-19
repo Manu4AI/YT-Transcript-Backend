@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 import yt_dlp
+import requests
 
 app = FastAPI()
 
@@ -15,12 +16,9 @@ def get_transcript(video_id: str):
         ydl_opts = {
             "quiet": True,
             "skip_download": True,
-            "writeautomaticsub": True,
-            "writesubtitles": True,
-            "subtitlesformat": "vtt",
-            "cookiefile": "cookies.txt"
+            "cookiefile": "cookies.txt",
         }
-        
+
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
 
@@ -29,23 +27,22 @@ def get_transcript(video_id: str):
         if not subtitles:
             return {"error": "No subtitles available"}
 
-        lang = list(subtitles.keys())[0]
-        formats = subtitles[lang]
+        # Prefer English if available
+        if "en" in subtitles:
+            lang = "en"
+        else:
+            lang = list(subtitles.keys())[0]
 
-        # get subtitle URL
-        subtitle_url = formats[0]["url"]
+        subtitle_url = subtitles[lang][0]["url"]
 
-        import requests
         response = requests.get(subtitle_url)
-        transcript = response.text
+        transcript_xml = response.text
 
         return {
             "success": True,
             "language": lang,
-            "transcript_raw": transcript
+            "transcript_raw": transcript_xml
         }
 
     except Exception as e:
         return {"error": str(e)}
-
-
