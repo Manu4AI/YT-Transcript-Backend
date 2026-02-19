@@ -17,7 +17,8 @@ def get_transcript(video_id: str):
             "skip_download": True,
             "writeautomaticsub": True,
             "writesubtitles": True,
-            "cookiefile": "cookies.txt",
+            "subtitlesformat": "vtt",
+            "cookiefile": "cookies.txt"
         }
         
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -46,4 +47,5 @@ def get_transcript(video_id: str):
 
     except Exception as e:
         return {"error": str(e)}
+
 
